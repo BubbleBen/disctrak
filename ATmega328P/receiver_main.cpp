@@ -1,9 +1,5 @@
 //NOTE THIS CODE DOES NOT YET WORK, AS OF NOW THIS IS JUST USED TO DEBUG THE RECEIVER 
 //AND UTILISES THE MCHR3K LIBRARY.
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include "tft_lcd.h"
-//#include "tft_lcd.cpp"
 #ifndef F_CPU
 #define F_CPU 1000000UL
 #endif
@@ -11,12 +7,40 @@
 #include <stdio.h>
 #include "Manchester_r.h"
 #include "Manchester_r.cpp"
+#include "LCD.c"
+
+#define DATA PORTB
+#define DIR_DATA DDRB
+#define CRTL PORTD
+#define DIR_CRTL DDRD
+#define EN 5
+#define RW 7
+#define RS 2
 
 int main(void)
 {
 	DDRB |= (1<<PB2);
 	DDRB |= (1<<PB0); // debugging LED
 	//PORTB |= (1<<PB0);
+	DIR_CRTL |= 1<<EN | 1<<RW | 1<<RS;
+	_delay_ms(15);
+
+	send_command(0x01); //Clear Screen 0x01 = 00000001
+	_delay_ms(2);
+	send_command(0x38);
+	_delay_us(50);
+	send_command(0b00001100);
+	_delay_us(50);
+	send_str("DiscTrak");
+	_delay_us(50);
+	send_command(0b11000000);
+	_delay_us(50);
+	send_str("Statistics");
+	_delay_us(50);
+	send_command(0b00010100);
+	_delay_us(50);
+	send_str("Feedback");
+	
 	man.setupReceive(MAN_1200);
 	man.beginReceive();
 	uint16_t msg;
